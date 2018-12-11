@@ -5,6 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20181211092902_CreateAppDomain.cs" />
+    <Compile Remove="Migrations\20181211092902_CreateAppDomain.Designer.cs" />
+    <Compile Remove="Migrations\20181211093639_CreateAppDomain.cs" />
+    <Compile Remove="Migrations\20181211093639_CreateAppDomain.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
   </ItemGroup>
