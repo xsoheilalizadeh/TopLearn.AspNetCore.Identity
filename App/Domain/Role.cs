@@ -11,5 +11,8 @@ namespace App.Domain
         public DateTime CreatedOn { get; set; }
 
         public ICollection<RoleClaim> Claims { get; set; }
+
+        public ICollection<UserRole> Users { get; set; }    
+
     }
 }   
