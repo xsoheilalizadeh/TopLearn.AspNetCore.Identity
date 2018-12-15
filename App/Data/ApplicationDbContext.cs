@@ -10,6 +10,8 @@ namespace App.Data
         {
         }
 
+        public DbSet<Book> Books { get; set; }  
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

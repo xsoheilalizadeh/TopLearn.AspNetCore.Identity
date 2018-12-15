@@ -23,5 +23,7 @@ namespace App.Domain
         public ICollection<UserClaim> Claims { get; set; }
 
         public ICollection<UserToken> Tokens { get; set; }
+
+        public ICollection<Book> Books { get; set; }
     }
-}           
+}               
