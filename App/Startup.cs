@@ -41,13 +41,23 @@ namespace App
             });
 
 
-            services.AddIdentity<User, Role>()
+            services.AddIdentity<User, Role>(option =>
+                {
+                    option.User.RequireUniqueEmail = true;
+
+                    option.Password.RequireDigit = true;
+                    option.Password.RequireLowercase = false;
+                    option.Password.RequireUppercase = true;
+
+                    option.SignIn.RequireConfirmedEmail = true;
+
+                })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
         }
 
-
+      
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
