@@ -1,4 +1,6 @@
-﻿namespace App.Domain
+﻿using App.Domain.Identity;
+
+namespace App.Domain
 {
     public class Book
     {

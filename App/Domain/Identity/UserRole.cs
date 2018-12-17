@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Identity;
 
-namespace App.Domain
+namespace App.Domain.Identity
 {
     public class UserRole : IdentityUserRole<int>
     {
