@@ -1,5 +1,8 @@
 ﻿using App.Data;
 using App.Domain;
+using App.Domain.Identity;
+using App.Services.Identity.Stores;
+using App.Services.Identity.Validators;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -52,7 +55,8 @@ namespace App
                     option.SignIn.RequireConfirmedEmail = true;
 
                 })
-                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddUserStore<AppUserStore>()
+                .AddRoleStore<AppRoleStore>()
                 .AddDefaultTokenProviders();
 
         }
