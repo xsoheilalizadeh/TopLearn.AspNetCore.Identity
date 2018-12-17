@@ -57,6 +57,8 @@ namespace App
                 })
                 .AddUserStore<AppUserStore>()
                 .AddRoleStore<AppRoleStore>()
+                .AddUserValidator<AppUserValidator>()
+                .AddRoleValidator<AppRoleValidator>()
                 .AddDefaultTokenProviders();
 
         }
