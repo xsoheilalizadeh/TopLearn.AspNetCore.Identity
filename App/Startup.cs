@@ -1,6 +1,7 @@
 ﻿using App.Data;
 using App.Domain;
 using App.Domain.Identity;
+using App.Services.Identity;
 using App.Services.Identity.Managers;
 using App.Services.Identity.Stores;
 using App.Services.Identity.Validators;
@@ -62,6 +63,7 @@ namespace App
                 .AddUserManager<AppUserManager>()
                 .AddRoleManager<AppRoleManager>()
                 .AddSignInManager<AppSignInManager>()
+                .AddErrorDescriber<AppErrorDescriber>()
                 .AddDefaultTokenProviders();
         }
 
