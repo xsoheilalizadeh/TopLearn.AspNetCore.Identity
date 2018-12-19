@@ -1,6 +1,7 @@
 ﻿using App.Data;
 using App.Domain;
 using App.Domain.Identity;
+using App.Services.Identity.Managers;
 using App.Services.Identity.Stores;
 using App.Services.Identity.Validators;
 using Microsoft.AspNetCore.Builder;
@@ -53,17 +54,18 @@ namespace App
                     option.Password.RequireUppercase = true;
 
                     option.SignIn.RequireConfirmedEmail = true;
-
                 })
                 .AddUserStore<AppUserStore>()
                 .AddRoleStore<AppRoleStore>()
                 .AddUserValidator<AppUserValidator>()
                 .AddRoleValidator<AppRoleValidator>()
+                .AddUserManager<AppUserManager>()
+                .AddRoleManager<AppRoleManager>()
+                .AddSignInManager<AppSignInManager>()
                 .AddDefaultTokenProviders();
-
         }
 
-      
+
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
