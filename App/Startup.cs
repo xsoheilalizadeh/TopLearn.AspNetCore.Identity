@@ -64,6 +64,7 @@ namespace App
                 .AddRoleManager<AppRoleManager>()
                 .AddSignInManager<AppSignInManager>()
                 .AddErrorDescriber<AppErrorDescriber>()
+                .AddClaimsPrincipalFactory<AppUserClaimsPrincipalFactory>()
                 .AddDefaultTokenProviders();
         }
 
