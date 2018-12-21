@@ -55,6 +55,7 @@ namespace App
                     option.Password.RequireUppercase = true;
 
                     option.SignIn.RequireConfirmedEmail = true;
+
                 })
                 .AddUserStore<AppUserStore>()
                 .AddRoleStore<AppRoleStore>()

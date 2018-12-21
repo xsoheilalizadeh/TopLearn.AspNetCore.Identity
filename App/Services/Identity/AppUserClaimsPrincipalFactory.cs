@@ -1,5 +1,4 @@
-﻿using System;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Threading.Tasks;
 using App.Domain.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -29,8 +28,6 @@ namespace App.Services.Identity
             claimsIdentity.AddClaim(new Claim(ClaimTypes.Surname, user.LastName));
 
             claimsIdentity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
-
-            claimsIdentity.AddClaim(new Claim("LastLogin", DateTime.Now.ToString()));
 
 
             return claimsIdentity;
