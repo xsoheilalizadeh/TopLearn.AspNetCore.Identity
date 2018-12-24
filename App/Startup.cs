@@ -53,6 +53,7 @@ namespace App
                     option.Password.RequireDigit = true;
                     option.Password.RequireLowercase = false;
                     option.Password.RequireUppercase = true;
+                    option.Password.RequireNonAlphanumeric = false;
 
                     option.SignIn.RequireConfirmedEmail = true;
 
