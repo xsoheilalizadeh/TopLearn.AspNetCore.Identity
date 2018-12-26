@@ -52,10 +52,10 @@ namespace App
 
                     option.Password.RequireDigit = true;
                     option.Password.RequireLowercase = false;
-                    option.Password.RequireUppercase = true;
+                    option.Password.RequireUppercase = false;
                     option.Password.RequireNonAlphanumeric = false;
 
-                    option.SignIn.RequireConfirmedEmail = true;
+                    option.SignIn.RequireConfirmedEmail = false;
 
                 })
                 .AddUserStore<AppUserStore>()
@@ -68,6 +68,10 @@ namespace App
                 .AddErrorDescriber<AppErrorDescriber>()
                 .AddClaimsPrincipalFactory<AppUserClaimsPrincipalFactory>()
                 .AddDefaultTokenProviders();
+
+
+
+            services.ConfigureApplicationCookie(options => { options.Cookie.Name = "App.Cookie"; });
         }
 
 

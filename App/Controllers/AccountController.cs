@@ -21,7 +21,7 @@ namespace App.Controllers
 
 
         [HttpGet("sign-up", Name = "GetRegister")]
-        public IActionResult Register(string returnTo)
+        public IActionResult Register(string returnTo = null)
         {
             ViewData["returnTo"] = returnTo;
 
@@ -60,6 +60,76 @@ namespace App.Controllers
 
             return View(account);
         }
+
+
+        [HttpGet("sign-in", Name = "GetLogin")]
+        public IActionResult Login(string returnTo = null)
+        {
+            ViewData["returnTo"] = returnTo;
+
+            return View();
+        }
+
+        [HttpPost("sign-in", Name = "PostLogin")]
+        public async Task<IActionResult> Login(LoginAccount account, string returnTo)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _signInManager.PasswordSignInAsync(
+                    userName: account.UserName,
+                    password: account.Password,
+                    isPersistent: account.RememberMe,
+                    lockoutOnFailure: false);
+
+
+                if (result.Succeeded)
+                {
+                    return RedirectToLocal(returnTo);
+                }
+
+                if (result.RequiresTwoFactor)
+                {
+                    // todo implement tow factor auth
+                }
+
+                if (result.IsLockedOut)
+                {
+                    // todo create lockout view
+                    return View("LockOut");
+                }
+
+                if (result.IsNotAllowed)
+                {
+
+                    if (_userManager.Options.SignIn.RequireConfirmedPhoneNumber)
+                    {
+                        if (!await _userManager.IsPhoneNumberConfirmedAsync(new User { UserName = account.UserName }))
+                        {
+
+                            ModelState.AddModelError(string.Empty, "شماره تلفن شما تایید نشده است.");
+
+                            return View(account);
+                        }
+                    }
+
+
+                    if (_userManager.Options.SignIn.RequireConfirmedEmail)
+                    {
+                        if (!await _userManager.IsEmailConfirmedAsync(new User { UserName = account.UserName }))
+                        {
+
+                            ModelState.AddModelError(string.Empty, "آدرس اییل شما تایید نشده است.");
+
+                            return View(account);
+                        }
+                    }
+
+                }
+            }
+
+            return View(account);
+        }
+
 
         private IActionResult RedirectToLocal(string returnTo)
         {
