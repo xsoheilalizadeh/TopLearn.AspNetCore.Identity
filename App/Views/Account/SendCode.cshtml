@@ -1,0 +1,38 @@
+﻿@model App.DTOs.Account.SendCode
+
+<br />
+
+<div class="container">
+
+    <div class="col-md-6">
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <form asp-route="PostSendCode" asp-route-returnTo="@Model.ReturnTo">
+            
+            <input asp-for="RememberMe" type="hidden"/>
+
+            <div class="form-group">
+                <select asp-for="SelectedProvider" asp-items="Model.Providers" class="form-control">
+                </select>
+            </div>
+
+            <span asp-validation-for="SelectedProvider" class="text-danger"></span>
+
+            <hr/>
+
+            <button type="submit" class="btn btn-success">Send Code</button>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts
+{
+
+    <script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="//ajax.aspnetcdn.com/ajax/mvc/5.2.3/jquery.validate.unobtrusive.min.js"></script>
+}
+
+

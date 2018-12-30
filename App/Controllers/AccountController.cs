@@ -1,9 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using App.Domain.Identity;
 using App.DTOs.Account;
 using App.Services.Identity.Managers;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace App.Controllers
 {
@@ -89,7 +92,7 @@ namespace App.Controllers
 
                 if (result.RequiresTwoFactor)
                 {
-                    // todo implement tow factor auth
+                    return RedirectToRoute("GetSendCode", new {returnTo, rememberMe = account.RememberMe});
                 }
 
                 if (result.IsLockedOut)
@@ -100,12 +103,10 @@ namespace App.Controllers
 
                 if (result.IsNotAllowed)
                 {
-
                     if (_userManager.Options.SignIn.RequireConfirmedPhoneNumber)
                     {
-                        if (!await _userManager.IsPhoneNumberConfirmedAsync(new User { UserName = account.UserName }))
+                        if (!await _userManager.IsPhoneNumberConfirmedAsync(new User {UserName = account.UserName}))
                         {
-
                             ModelState.AddModelError(string.Empty, "شماره تلفن شما تایید نشده است.");
 
                             return View(account);
@@ -115,22 +116,142 @@ namespace App.Controllers
 
                     if (_userManager.Options.SignIn.RequireConfirmedEmail)
                     {
-                        if (!await _userManager.IsEmailConfirmedAsync(new User { UserName = account.UserName }))
+                        if (!await _userManager.IsEmailConfirmedAsync(new User {UserName = account.UserName}))
                         {
-
                             ModelState.AddModelError(string.Empty, "آدرس اییل شما تایید نشده است.");
 
                             return View(account);
                         }
                     }
-
                 }
             }
 
             return View(account);
         }
 
+        [HttpGet("send-code", Name = "GetSendCode")]
+        public async Task<IActionResult> SendCode(string returnTo, bool rememberMe)
+        {
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
 
+            if (user == null)
+            {
+                return View("Error");
+            }
+
+            var providers = await _userManager.GetValidTwoFactorProvidersAsync(user);
+
+
+            var providerList = providers.Select(provider => new SelectListItem {Value = provider, Text = provider})
+                .ToList();
+
+
+            return View(new SendCode
+            {
+                RememberMe = rememberMe,
+                ReturnTo = returnTo,
+                Providers = providerList
+            });
+        }
+
+
+        [HttpPost("send-code", Name = "PostSendCode")]
+        public async Task<IActionResult> SendCode(SendCode model, string returnTo)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+
+
+            if (user == null)
+            {
+                return View("Error");
+            }
+
+            var code = await _userManager.GenerateTwoFactorTokenAsync(user, model.SelectedProvider);
+
+            if (string.IsNullOrEmpty(code))
+            {
+                return View("Error");
+            }
+
+
+            if (model.SelectedProvider == "Email")
+            {
+                // todo send code with email
+            }
+            else if (model.SelectedProvider == "Phone")
+            {
+                // todo send code with sms
+            }
+
+
+            return RedirectToRoute("GetVerifyCode",
+                new
+                {
+                    returnTo,
+                    rememberMe = model.RememberMe,
+                    provider = model.SelectedProvider
+                });
+        }
+
+
+        [HttpGet("verify-code",Name = "GetVerifyCode")]
+        public async Task<IActionResult> VerifyCode(string returnTo,bool rememberMe,string provider)
+        {
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+
+            if (user == null)
+            {
+                return View("Error");
+            }
+
+            return View(new VerifyCode
+            {
+                RememberMe = rememberMe,
+                ReturnTo = returnTo,
+                Provider = provider
+            });
+        }
+
+        [HttpPost("verify-code",Name = "PostVerifyCode")]
+        public async Task<IActionResult> VerifyCode(VerifyCode model)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+
+            var result = await _signInManager.TwoFactorSignInAsync(
+                provider: model.Provider,
+                code: model.Code,
+                isPersistent: model.RememberMe,
+                rememberClient: model.BrowserRemember
+            );
+
+
+            if (result.Succeeded)
+            {
+                return RedirectToLocal(model.ReturnTo);
+            }
+
+            if (result.IsLockedOut)
+            {
+                return View("LockOut");
+            }
+
+            ModelState.AddModelError(nameof(model.Code),"کد وارد شده معتبر نمی باشد");
+
+            return View(model);
+
+        }
+            
         private IActionResult RedirectToLocal(string returnTo)
         {
             return Redirect(Url.IsLocalUrl(returnTo) ? returnTo : "/");
