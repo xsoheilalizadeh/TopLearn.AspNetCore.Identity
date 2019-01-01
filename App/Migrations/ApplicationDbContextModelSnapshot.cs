@@ -33,10 +33,10 @@ namespace App.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("Book");
+                    b.ToTable("Books");
                 });
 
-            modelBuilder.Entity("App.Domain.Role", b =>
+            modelBuilder.Entity("App.Domain.Identity.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -65,7 +65,7 @@ namespace App.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("App.Domain.RoleClaim", b =>
+            modelBuilder.Entity("App.Domain.Identity.RoleClaim", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -86,7 +86,7 @@ namespace App.Migrations
                     b.ToTable("RoleClaims");
                 });
 
-            modelBuilder.Entity("App.Domain.User", b =>
+            modelBuilder.Entity("App.Domain.Identity.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -107,6 +107,8 @@ namespace App.Migrations
                     b.Property<string>("FirstName");
 
                     b.Property<int>("Gender");
+
+                    b.Property<string>("GeneratedKey");
 
                     b.Property<string>("LastName");
 
@@ -148,7 +150,7 @@ namespace App.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("App.Domain.UserClaim", b =>
+            modelBuilder.Entity("App.Domain.Identity.UserClaim", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -167,7 +169,7 @@ namespace App.Migrations
                     b.ToTable("UserClaims");
                 });
 
-            modelBuilder.Entity("App.Domain.UserLogin", b =>
+            modelBuilder.Entity("App.Domain.Identity.UserLogin", b =>
                 {
                     b.Property<string>("LoginProvider");
 
@@ -186,7 +188,7 @@ namespace App.Migrations
                     b.ToTable("UserLogins");
                 });
 
-            modelBuilder.Entity("App.Domain.UserRole", b =>
+            modelBuilder.Entity("App.Domain.Identity.UserRole", b =>
                 {
                     b.Property<int>("UserId");
 
@@ -201,7 +203,7 @@ namespace App.Migrations
                     b.ToTable("UserRoles");
                 });
 
-            modelBuilder.Entity("App.Domain.UserToken", b =>
+            modelBuilder.Entity("App.Domain.Identity.UserToken", b =>
                 {
                     b.Property<int>("UserId");
 
@@ -220,52 +222,52 @@ namespace App.Migrations
 
             modelBuilder.Entity("App.Domain.Book", b =>
                 {
-                    b.HasOne("App.Domain.User", "Author")
+                    b.HasOne("App.Domain.Identity.User", "Author")
                         .WithMany("Books")
                         .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("App.Domain.RoleClaim", b =>
+            modelBuilder.Entity("App.Domain.Identity.RoleClaim", b =>
                 {
-                    b.HasOne("App.Domain.Role", "Role")
+                    b.HasOne("App.Domain.Identity.Role", "Role")
                         .WithMany("Claims")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("App.Domain.UserClaim", b =>
+            modelBuilder.Entity("App.Domain.Identity.UserClaim", b =>
                 {
-                    b.HasOne("App.Domain.User", "User")
+                    b.HasOne("App.Domain.Identity.User", "User")
                         .WithMany("Claims")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("App.Domain.UserLogin", b =>
+            modelBuilder.Entity("App.Domain.Identity.UserLogin", b =>
                 {
-                    b.HasOne("App.Domain.User", "User")
+                    b.HasOne("App.Domain.Identity.User", "User")
                         .WithMany("Logins")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("App.Domain.UserRole", b =>
+            modelBuilder.Entity("App.Domain.Identity.UserRole", b =>
                 {
-                    b.HasOne("App.Domain.Role", "Role")
+                    b.HasOne("App.Domain.Identity.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("App.Domain.User", "User")
+                    b.HasOne("App.Domain.Identity.User", "User")
                         .WithMany("Roles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("App.Domain.UserToken", b =>
+            modelBuilder.Entity("App.Domain.Identity.UserToken", b =>
                 {
-                    b.HasOne("App.Domain.User", "User")
+                    b.HasOne("App.Domain.Identity.User", "User")
                         .WithMany("Tokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);

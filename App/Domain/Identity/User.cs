@@ -6,6 +6,8 @@ namespace App.Domain.Identity
 {
     public class User : IdentityUser<int>
     {
+        public string GeneratedKey { get; set; }    
+
         public string FirstName { get; set; }
 
         public string LastName { get; set; }

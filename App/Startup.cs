@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -55,7 +56,7 @@ namespace App
                     option.Password.RequireUppercase = false;
                     option.Password.RequireNonAlphanumeric = false;
 
-                    option.SignIn.RequireConfirmedEmail = false;
+                    option.SignIn.RequireConfirmedEmail = true;
 
                 })
                 .AddUserStore<AppUserStore>()
@@ -69,7 +70,8 @@ namespace App
                 .AddClaimsPrincipalFactory<AppUserClaimsPrincipalFactory>()
                 .AddDefaultTokenProviders();
 
-
+            services.AddScoped<IEmailSender, EmailSender>();
+            services.AddScoped<ISmsSender, SmsSender>();
 
             services.ConfigureApplicationCookie(options => { options.Cookie.Name = "App.Cookie"; });
         }
@@ -90,6 +92,8 @@ namespace App
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+
+            app.UseAuthentication();
 
             app.UseMvc(routes =>
             {

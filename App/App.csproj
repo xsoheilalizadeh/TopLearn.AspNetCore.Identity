@@ -5,13 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20181211092902_CreateAppDomain.cs" />
-    <Compile Remove="Migrations\20181211092902_CreateAppDomain.Designer.cs" />
-    <Compile Remove="Migrations\20181211093639_CreateAppDomain.cs" />
-    <Compile Remove="Migrations\20181211093639_CreateAppDomain.Designer.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="Kavenegar.Core" Version="1.0.1-alpha3" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" />
