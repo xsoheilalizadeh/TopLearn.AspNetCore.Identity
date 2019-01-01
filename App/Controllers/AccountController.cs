@@ -1,12 +1,15 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using App.Domain.Identity;
 using App.DTOs.Account;
+using App.Services.Identity;
 using App.Services.Identity.Managers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace App.Controllers
 {
@@ -16,10 +19,16 @@ namespace App.Controllers
         private readonly AppUserManager _userManager;
         private readonly AppSignInManager _signInManager;
 
-        public AccountController(AppUserManager userManager, AppSignInManager signInManager)
+        private readonly ISmsSender _smsSender;
+        private readonly IEmailSender _emailSender;
+
+        public AccountController(AppUserManager userManager, AppSignInManager signInManager, ISmsSender smsSender,
+            IEmailSender emailSender)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _smsSender = smsSender;
+            _emailSender = emailSender;
         }
 
 
@@ -42,7 +51,8 @@ namespace App.Controllers
                     Email = account.Email,
                     FirstName = account.FirstName,
                     LastName = account.LastName,
-                    RegisteredOn = account.RegisteredOn
+                    RegisteredOn = account.RegisteredOn,
+                    GeneratedKey = Guid.NewGuid().ToString("N")
                 };
 
 
@@ -50,7 +60,17 @@ namespace App.Controllers
 
                 if (result.Succeeded)
                 {
-                    //todo implement email verification
+                    if (_userManager.Options.SignIn.RequireConfirmedEmail)
+                    {
+                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                        var callBackUrl = Url.RouteUrl("ConfirmEmail", new {code, key = user.GeneratedKey},
+                            Request.Scheme);
+
+                        var message = $"<a href=\"{callBackUrl}\"> Confirm Email </a>";
+
+                        await _emailSender.SendEmailAsync(user.Email, "Confirm Email", message);
+                    }
 
                     await _signInManager.SignInAsync(user, false);
 
@@ -97,7 +117,6 @@ namespace App.Controllers
 
                 if (result.IsLockedOut)
                 {
-                    // todo create lockout view
                     return View("LockOut");
                 }
 
@@ -163,9 +182,7 @@ namespace App.Controllers
                 return View(model);
             }
 
-
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
-
 
             if (user == null)
             {
@@ -179,14 +196,15 @@ namespace App.Controllers
                 return View("Error");
             }
 
+            var message = $"Confirm Code: {code}";
 
             if (model.SelectedProvider == "Email")
             {
-                // todo send code with email
+                await _emailSender.SendEmailAsync(user.Email, "Confirm Code", message);
             }
             else if (model.SelectedProvider == "Phone")
             {
-                // todo send code with sms
+                await _smsSender.SendSmsAsync(user.PhoneNumber, message);
             }
 
 
@@ -200,8 +218,8 @@ namespace App.Controllers
         }
 
 
-        [HttpGet("verify-code",Name = "GetVerifyCode")]
-        public async Task<IActionResult> VerifyCode(string returnTo,bool rememberMe,string provider)
+        [HttpGet("verify-code", Name = "GetVerifyCode")]
+        public async Task<IActionResult> VerifyCode(string returnTo, bool rememberMe, string provider)
         {
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
 
@@ -218,10 +236,9 @@ namespace App.Controllers
             });
         }
 
-        [HttpPost("verify-code",Name = "PostVerifyCode")]
+        [HttpPost("verify-code", Name = "PostVerifyCode")]
         public async Task<IActionResult> VerifyCode(VerifyCode model)
         {
-
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -246,12 +263,47 @@ namespace App.Controllers
                 return View("LockOut");
             }
 
-            ModelState.AddModelError(nameof(model.Code),"کد وارد شده معتبر نمی باشد");
+            ModelState.AddModelError(nameof(model.Code), "کد وارد شده معتبر نمی باشد");
 
             return View(model);
-
         }
-            
+
+        [HttpGet("confirm-email", Name = "ConfirmEmail")]
+        public async Task<IActionResult> ConfirmEmail(string key, string code)
+        {
+            if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(code))
+            {
+                return View("Error");
+            }
+
+            var user = await _userManager.Users.SingleOrDefaultAsync();
+
+            if (user == null)
+            {
+                return View("Error");
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, code);
+
+            return View(result.Succeeded ? "ConfirmEmail" : "Error");
+        }
+
+
+        [HttpGet("sign-out", Name = "LogOut")]
+        public async Task<IActionResult> LogOut()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+                await _signInManager.SignOutAsync();
+
+                await _userManager.UpdateSecurityStampAsync(user);
+            }
+
+            return Redirect("/");
+        }
+
         private IActionResult RedirectToLocal(string returnTo)
         {
             return Redirect(Url.IsLocalUrl(returnTo) ? returnTo : "/");
