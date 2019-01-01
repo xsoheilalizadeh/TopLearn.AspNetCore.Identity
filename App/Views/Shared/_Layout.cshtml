@@ -52,7 +52,14 @@
                 else
                 {
                     <li>
-                        @User.Identity.Name
+                        <a asp-route="LogOut">
+                            SignOut
+                        </a>
+                    </li>
+                    <li>
+                        <a>
+                            @User.Identity.Name
+                        </a>
                     </li>
                 }
 
