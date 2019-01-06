@@ -1,4 +1,6 @@
-﻿@model App.DTOs.Account.LoginAccount
+﻿@using App.Services.Identity.Managers
+@model App.DTOs.Account.LoginAccount
+@inject AppSignInManager SignInManager
 @{
     ViewData["Title"] = "Login";
 }
@@ -14,7 +16,7 @@
         <form asp-route="PostLogin">
 
             <div class="form-group">
-                <input asp-for="UserName" placeholder="UserName" class="form-control" />
+                <input asp-for="UserName" placeholder="UserName" class="form-control"/>
             </div>
 
             <span asp-validation-for="UserName" class="text-danger"></span>
@@ -24,15 +26,49 @@
             </div>
 
             <span asp-validation-for="Password" class="text-danger"></span>
-            
-            <input asp-for="RememberMe"  />
+
+            <input asp-for="RememberMe"/>
             <label asp-for="RememberMe"></label>
 
-            <hr />
+            <hr/>
 
             <button type="submit" class="btn btn-success">Login</button>
 
         </form>
+    </div>
+
+    <div class="col-md-4">
+
+        <br/>
+
+        <h3>
+            Here are other options :)
+        </h3>
+
+        <hr/>
+        @{
+            var schemes = await SignInManager.GetExternalAuthenticationSchemesAsync();
+
+            var providers = schemes.ToList();
+
+            <div>
+
+                <form asp-route="PostExternalLogin" class="form-horizontal" asp-route-returnTo="@ViewData["returnTo"]">
+                    <p>
+
+                        @foreach (var provider in providers)
+                        {
+                            <button class="btn btn-info" name="provider" value="@provider.Name">@provider.Name</button>
+                        }
+
+                    </p>
+
+                </form>
+
+            </div>
+        }
+
+
     </div>
 
 </div>
@@ -40,7 +76,7 @@
 
 @section Scripts
 {
-    
+
     <script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
     <script src="//ajax.aspnetcdn.com/ajax/mvc/5.2.3/jquery.validate.unobtrusive.min.js"></script>
 }

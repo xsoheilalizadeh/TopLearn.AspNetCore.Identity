@@ -1,0 +1,49 @@
+﻿@model App.DTOs.Account.ExternalLoginConfirm
+
+<br />
+
+<div class="container">
+
+    <div class="col-md-6">
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <form asp-route="PostExternalLoginConfirm" asp-route-returnTo="@ViewData["returnTo"]">
+
+            <div class="form-group">
+                <input asp-for="FirstName" class="form-control" placeholder="FirstName"/>
+            </div>
+
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+            
+            <div class="form-group">
+                <input asp-for="LastName" class="form-control" placeholder="LastName"/>
+            </div>
+
+            <span asp-validation-for="LastName" class="text-danger"></span>
+            
+            <div class="form-group">
+                <input asp-for="Email" class="form-control" placeholder="Email"/>
+            </div>
+
+            <span asp-validation-for="Email" class="text-danger"></span>
+
+            <br/>
+
+            <hr />
+
+            <button type="submit" class="btn btn-success">Register</button>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts
+{
+
+    <script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="//ajax.aspnetcdn.com/ajax/mvc/5.2.3/jquery.validate.unobtrusive.min.js"></script>
+}
+
+

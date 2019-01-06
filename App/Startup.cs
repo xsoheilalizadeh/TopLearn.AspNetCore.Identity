@@ -73,6 +73,13 @@ namespace App
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<ISmsSender, SmsSender>();
 
+            services.AddAuthentication()
+                .AddGoogle(options =>
+                {
+                    options.ClientId = Configuration["GoogleAuth:ClientId"];
+                    options.ClientSecret = Configuration["GoogleAuth:ClientSecret"];
+                });
+
             services.ConfigureApplicationCookie(options => { options.Cookie.Name = "App.Cookie"; });
         }
 

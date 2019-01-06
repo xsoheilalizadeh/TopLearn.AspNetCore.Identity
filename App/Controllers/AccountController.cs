@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using App.Domain.Identity;
 using App.DTOs.Account;
@@ -303,6 +304,115 @@ namespace App.Controllers
 
             return Redirect("/");
         }
+
+        [HttpPost("external/sign-in", Name = "PostExternalLogin")]
+        public IActionResult ExternalLogin(string provider, string returnTo = null)
+        {
+            var redirectUrl = Url.RouteUrl("GetExternalLoginCallBack", new {returnTo}, Request.Scheme);
+
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+
+            return Challenge(properties, provider);
+        }
+
+        [HttpGet("external/call-back", Name = "GetExternalLoginCallBack")]
+        public async Task<IActionResult> ExternalLoginCallBack(string returnTo = null, string remoteError = null)
+        {
+            if (!string.IsNullOrEmpty(remoteError) || !string.IsNullOrWhiteSpace(remoteError))
+            {
+                return View("Error");
+            }
+
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+
+            if (info == null)
+            {
+                return View("Error");
+            }
+
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
+
+            if (result.Succeeded)
+            {
+                await _signInManager.UpdateExternalAuthenticationTokensAsync(info);
+
+                return RedirectToLocal(returnTo);
+            }
+
+            if (result.IsLockedOut)
+            {
+                return View("LockOut");
+            }
+
+            if (result.RequiresTwoFactor)
+            {
+                return RedirectToRoute("GetSendCode", new {returnTo});
+            }
+            else
+            {
+                ViewData["returnTo"] = returnTo;
+
+
+                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+
+                var model = new ExternalLoginConfirm
+                {
+                    Email = email
+                };
+
+                return View("ExternalLoginConfirm", model);
+            }
+        }
+
+        [HttpPost("external/confirm", Name = "PostExternalLoginConfirm")]
+        public async Task<IActionResult> ExternalLoginConfirm(ExternalLoginConfirm model, string returnTo = null)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+
+            if (info == null)
+            {
+                return View("Error");
+            }
+
+            var user = new User
+            {
+                Email = model.Email,
+                UserName = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                EmailConfirmed = true
+            };
+
+            var result = await _userManager.CreateAsync(user);
+
+            if (result.Succeeded)
+            {
+                result = await _userManager.AddLoginAsync(user, info);
+
+                if (result.Succeeded)
+                {
+                    await _signInManager.SignInAsync(user, false);
+
+                    await _signInManager.UpdateExternalAuthenticationTokensAsync(info);
+
+                    return RedirectToLocal(returnTo);
+                }
+
+                AddErrors(result);
+
+                return View();
+            }
+
+            AddErrors(result);
+
+            return View();
+        }
+
 
         private IActionResult RedirectToLocal(string returnTo)
         {
