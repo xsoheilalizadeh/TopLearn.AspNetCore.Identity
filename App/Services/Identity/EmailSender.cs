@@ -10,16 +10,16 @@ namespace App.Services.Identity
     {
         public Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
-            var message = new MailMessage("example@mail.com", email, subject, htmlMessage)
+            var message = new MailMessage("no-reply@toplearn.com", email, subject, htmlMessage)
             {
                 IsBodyHtml = true,
                 BodyEncoding = Encoding.UTF8
             };
 
-            var smtpClient = new SmtpClient("example.com")
+            var smtpClient = new SmtpClient("toplearn.com")
             {
                 UseDefaultCredentials = false,
-                Credentials = new NetworkCredential("username", "password"),
+                Credentials = new NetworkCredential("no-reply@toplearn.com", "Top@123#"),
                 DeliveryMethod = SmtpDeliveryMethod.Network
             };
 

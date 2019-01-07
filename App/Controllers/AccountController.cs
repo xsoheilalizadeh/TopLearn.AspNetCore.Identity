@@ -413,12 +413,13 @@ namespace App.Controllers
             return View();
         }
 
+        [HttpGet("forget-password",Name = "GetForgetPassword")]
         public IActionResult ForgetPassword()
         {
             return View();
         }
 
-        [HttpPost("forget-password")]
+        [HttpPost("forget-password", Name = "PostForgetPassword")]
         public async Task<IActionResult> ForgetPassword(ForgetPassword model)
         {
             if (!ModelState.IsValid)
@@ -435,7 +436,7 @@ namespace App.Controllers
 
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-            var callBackUrl = Url.RouteUrl("GetRestPassword", new {key = user.GeneratedKey, code}, Request.Scheme);
+            var callBackUrl = Url.RouteUrl("GetResetPassword", new {key = user.GeneratedKey, code}, Request.Scheme);
 
             var message = $"<a href=\"{callBackUrl}\"> Reset Password </a>";
 

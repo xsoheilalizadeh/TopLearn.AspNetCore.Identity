@@ -47,6 +47,9 @@ namespace App
             });
 
 
+            services.AddScoped<IUserValidator<User>, AppUserValidator>();
+            services.AddScoped<UserValidator<User>, AppUserValidator>();
+
             services.AddIdentity<User, Role>(option =>
                 {
                     option.User.RequireUniqueEmail = true;
