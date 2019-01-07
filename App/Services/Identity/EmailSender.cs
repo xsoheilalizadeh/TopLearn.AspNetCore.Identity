@@ -19,7 +19,7 @@ namespace App.Services.Identity
             var smtpClient = new SmtpClient("example.com")
             {
                 UseDefaultCredentials = false,
-                Credentials = new NetworkCredential("username", "password"),
+                Credentials = new NetworkCredential("userName", "password"),
                 DeliveryMethod = SmtpDeliveryMethod.Network
             };
 

@@ -414,6 +414,81 @@ namespace App.Controllers
         }
 
 
+        [HttpGet("forget-password", Name = "GetForgetPassword")]
+        public IActionResult ForgetPassword()
+        {
+            return View();
+        }
+
+        [HttpPost("forget-password", Name = "PostForgetPassword")]
+        public async Task<IActionResult> ForgetPassword(ForgetPassword model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+            {
+                return View("ForgetPasswordConfirm");
+            }
+
+            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            var callBackUrl = Url.RouteUrl(
+                "GetResetPassword",
+                new
+                {
+                    key = user.GeneratedKey, code
+                }, Request.Scheme);
+
+            var message = $"<a href=\"{callBackUrl}\"> Rest Password </a>";
+
+            await _emailSender.SendEmailAsync(user.Email, "Rest Password", message);
+
+            return View("ForgetPasswordConfirm");
+        }
+
+        [HttpGet("rest-password", Name = "GetResetPassword")]
+        public IActionResult ResetPassword(string key, string code)
+        {
+            if (string.IsNullOrEmpty(code) || string.IsNullOrEmpty(key))
+            {
+                return View("Error");
+            }
+
+            return View();
+        }
+
+        [HttpPost("rest-password", Name = "PostRestPassword")]
+        public async Task<IActionResult> ResetPassword(ResetPassword model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _userManager.Users.SingleOrDefaultAsync(x => x.GeneratedKey == model.Key);
+
+            if (user == null)
+            {
+                return View("ResetPasswordConfirm");
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
+
+            if (result.Succeeded)
+            {
+                return View("ResetPasswordConfirm");
+            }
+
+            AddErrors(result);
+
+            return View(model);
+        }
+
         private IActionResult RedirectToLocal(string returnTo)
         {
             return Redirect(Url.IsLocalUrl(returnTo) ? returnTo : "/");

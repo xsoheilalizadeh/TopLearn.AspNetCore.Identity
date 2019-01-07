@@ -46,6 +46,12 @@ namespace App
                 );
             });
 
+            services.AddScoped<IUserValidator<User>, AppUserValidator>();
+            services.AddScoped<UserValidator<User>, AppUserValidator>();
+
+            services.AddScoped<IRoleValidator<Role>, AppRoleValidator>();
+            services.AddScoped<RoleValidator<Role>, AppRoleValidator>();
+
 
             services.AddIdentity<User, Role>(option =>
                 {
@@ -61,8 +67,8 @@ namespace App
                 })
                 .AddUserStore<AppUserStore>()
                 .AddRoleStore<AppRoleStore>()
-                .AddUserValidator<AppUserValidator>()
-                .AddRoleValidator<AppRoleValidator>()
+//                .AddUserValidator<AppUserValidator>()
+//                .AddRoleValidator<AppRoleValidator>()
                 .AddUserManager<AppUserManager>()
                 .AddRoleManager<AppRoleManager>()
                 .AddSignInManager<AppSignInManager>()
