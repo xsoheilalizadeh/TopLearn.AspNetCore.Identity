@@ -413,6 +413,76 @@ namespace App.Controllers
             return View();
         }
 
+        public IActionResult ForgetPassword()
+        {
+            return View();
+        }
+
+        [HttpPost("forget-password")]
+        public async Task<IActionResult> ForgetPassword(ForgetPassword model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+            {
+                return View();
+            }
+
+            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            var callBackUrl = Url.RouteUrl("GetRestPassword", new {key = user.GeneratedKey, code}, Request.Scheme);
+
+            var message = $"<a href=\"{callBackUrl}\"> Reset Password </a>";
+
+            await _emailSender.SendEmailAsync(user.Email, "ResetPassword", message);
+
+            return View();
+        }
+
+
+        [HttpGet("reset-password", Name = "GetResetPassword")]
+        public IActionResult ResetPassword(string key, string code)
+        {
+            if (string.IsNullOrEmpty(code) || string.IsNullOrEmpty(key))
+            {
+                return View("Error");
+            }
+
+            return View();
+        }
+
+
+        [HttpPost("reset-password", Name = "PostRestPassword")]
+        public async Task<IActionResult> ResetPassword(RestPassword model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user =  await _userManager.Users.SingleOrDefaultAsync(x => x.GeneratedKey == model.Key);
+
+            if (user == null)
+            {
+                return View();
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
+
+            if (result.Succeeded)
+            {
+                return View();
+            }
+
+            AddErrors(result);
+
+            return View(model);
+        }
 
         private IActionResult RedirectToLocal(string returnTo)
         {
