@@ -5,6 +5,7 @@ using App.Services.Identity;
 using App.Services.Identity.Managers;
 using App.Services.Identity.Stores;
 using App.Services.Identity.Validators;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -86,7 +87,34 @@ namespace App
                     options.ClientSecret = Configuration["GoogleAuth:ClientSecret"];
                 });
 
-            services.ConfigureApplicationCookie(options => { options.Cookie.Name = "App.Cookie"; });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequiredAdminRoleAndManager", policy =>
+                {
+                    policy.RequireRole("Admin","Manager");
+                });
+
+                options.AddPolicy("Plan1", policy =>
+                {
+                    policy.RequireClaim("UserPlan","1");
+                });
+
+                options.AddPolicy("Plan18", policy =>
+                {
+                    policy.Requirements.Add(new Plan18Requirement("Saeed"));
+                });
+            });
+
+            services.AddScoped<IAuthorizationHandler, Plan18AuthorizationHandler>();
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.Name = "App.Cookie";
+                options.LoginPath = "/account/sign-in";
+                options.AccessDeniedPath = "/account/access-denied";
+                options.LogoutPath = "/account/sign-out";
+                options.ReturnUrlParameter = "returnTo";
+            });
         }
 
 

@@ -32,6 +32,12 @@ namespace App.Controllers
             _emailSender = emailSender;
         }
 
+        [HttpGet("access-denied")]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
 
         [HttpGet("sign-up", Name = "GetRegister")]
         public IActionResult Register(string returnTo = null)

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using App.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace App.Controllers
 {
@@ -11,6 +12,7 @@ namespace App.Controllers
             return View();
         }
 
+        [Authorize("Plan18")]
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";
