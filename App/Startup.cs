@@ -1,4 +1,5 @@
 ﻿using App.Data;
+using App.DataProtection;
 using App.Domain;
 using App.Domain.Identity;
 using App.Services.Identity;
@@ -56,6 +57,8 @@ namespace App
 
             services.AddIdentity<User, Role>(option =>
                 {
+                    option.Stores.ProtectPersonalData = true;
+
                     option.User.RequireUniqueEmail = true;
 
                     option.Password.RequireDigit = true;
@@ -76,6 +79,12 @@ namespace App
                 .AddErrorDescriber<AppErrorDescriber>()
                 .AddClaimsPrincipalFactory<AppUserClaimsPrincipalFactory>()
                 .AddDefaultTokenProviders();
+
+
+            services.AddScoped<ILookupProtectorKeyRing, KeyRing>();
+            services.AddScoped<ILookupProtector, LookupProtector>();
+            services.AddScoped<IPersonalDataProtector, PersonalDataProtector>();
+
 
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<ISmsSender, SmsSender>();
