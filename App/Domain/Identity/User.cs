@@ -8,6 +8,7 @@ namespace App.Domain.Identity
     {
         public string GeneratedKey { get; set; }    
 
+        [ProtectedPersonalData]
         public string FirstName { get; set; }
 
         public string LastName { get; set; }

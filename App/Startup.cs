@@ -80,11 +80,11 @@ namespace App
                 .AddClaimsPrincipalFactory<AppUserClaimsPrincipalFactory>()
                 .AddDefaultTokenProviders();
 
-
             services.AddScoped<ILookupProtectorKeyRing, KeyRing>();
-            services.AddScoped<ILookupProtector, LookupProtector>();
-            services.AddScoped<IPersonalDataProtector, PersonalDataProtector>();
 
+            services.AddScoped<ILookupProtector, LookupProtector>();
+
+            services.AddScoped<IPersonalDataProtector, PersonalDataProtector>();
 
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<ISmsSender, SmsSender>();

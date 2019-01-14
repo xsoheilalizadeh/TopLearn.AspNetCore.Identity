@@ -1,0 +1,9 @@
+﻿https://github.com/blowdart/AspNetCoreIdentityEncryption
+
+https://github.com/aspnet/Identity/blob/master/src/Core/ILookupProtectorKeyRing.cs
+
+https://github.com/aspnet/Identity/blob/master/src/Core/IPersonalDataProtector.cs
+
+https://github.com/aspnet/Identity/blob/master/src/Core/ILookupProtector.cs
+
+https://github.com/aspnet/Identity/blob/master/src/EF/IdentityUserContext.cs#L121
