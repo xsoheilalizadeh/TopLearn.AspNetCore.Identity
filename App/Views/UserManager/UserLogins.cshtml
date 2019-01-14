@@ -1,0 +1,40 @@
+﻿@model IList<Microsoft.AspNetCore.Identity.UserLoginInfo>
+
+<br />
+<div class="container">
+    <div class="col-lg-6">
+        <h2>User Login List</h2>
+        @if (Model.Any())
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>LoginProvider</th>
+                        <th>ProviderDisplayName</th>
+                        <th>ProviderKey</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var login in Model)
+                    {
+                        <tr>
+                            <td>@login.LoginProvider</td>
+                            <td>@login.ProviderDisplayName</td>
+                            <td>@login.ProviderKey</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <p>
+                    There is not any user login.
+                </p>
+            </div>
+        }
+
+    </div>
+
+</div>

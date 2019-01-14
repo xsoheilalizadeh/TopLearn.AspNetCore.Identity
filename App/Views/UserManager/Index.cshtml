@@ -1,0 +1,71 @@
+﻿@model System.Collections.Generic.List<App.Domain.Identity.User>
+
+<br />
+<div class="container">
+    <div class="col-lg-6">
+        <h2>User List</h2>
+        @if (Model.Any())
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>UserName</th>
+                        <th>Firstname</th>
+                        <th>Lastname</th>
+                        <th>Email</th>
+                        <th>EmailConfirmed</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>@user.UserName</td>
+                            <td>@user.FirstName</td>
+                            <td>@user.LastName</td>
+                            <td>@user.Email</td>
+                            <td>@user.EmailConfirmed</td>
+                            <td style="display: flex;">
+                                <a class="btn btn-info" href="@Url.RouteUrl("GetUserRoles", new {userName = user.UserName})">
+                                    Roles
+                                </a>
+                                <a class="btn btn-success" href="@Url.RouteUrl("GetUserClaims", new {userName = user.UserName})">
+                                    Claims
+                                </a>
+                                <a class="btn btn-warning" href="@Url.RouteUrl("GetUserLogins", new {userName = user.UserName})">
+                                    Logins
+                                </a>
+                                <a class="btn btn-danger" href="@Url.RouteUrl("GetAddUserRole", new {userName = user.UserName})">
+                                    AddRole
+                                </a>
+                                <a class="btn btn-info" href="@Url.RouteUrl("GetAddUserClaim", new {userName = user.UserName})">
+                                    AddClaim
+                                </a>
+                                <a class="btn btn-warning" href="@Url.RouteUrl("GetUserEdit", new {userName = user.UserName})">
+                                    Edit
+                                </a>
+                                
+                                <form asp-route="PostUserRemove">
+                                    <input name="userId" value="@user.Id" type="hidden"/>
+                                    <button class="btn btn-danger"> Remove </button>
+                                </form>
+
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <p>
+                    There is not any user.
+                </p>
+            </div>
+        }
+
+    </div>
+
+</div>

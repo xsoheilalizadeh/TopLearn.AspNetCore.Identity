@@ -1,0 +1,44 @@
+﻿@model IList<App.Domain.Identity.User>
+
+<br />
+<div class="container">
+    <div class="col-lg-6">
+        <h2>Role Users</h2>
+        @if (Model.Any())
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>UserName</th>
+                        <th>Firstname</th>
+                        <th>Lastname</th>
+                        <th>Email</th>
+                        <th>EmailConfirmed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>@user.UserName</td>
+                            <td>@user.FirstName</td>
+                            <td>@user.LastName</td>
+                            <td>@user.Email</td>
+                            <td>@user.EmailConfirmed</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <p>
+                    There is not any users.
+                </p>
+            </div>
+        }
+
+    </div>
+
+</div>

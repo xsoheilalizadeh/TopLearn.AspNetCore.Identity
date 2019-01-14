@@ -1,0 +1,39 @@
+﻿@model IList<string>
+
+
+<br />
+<div class="container">
+    <div class="col-lg-6">
+        <h2>User Role List</h2>
+        
+        <hr/>
+        @if (Model.Any())
+        {
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>RoleName</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var role in Model)
+                {
+                    <tr>
+                        <td>@role</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <p>
+                    There is not any user role.
+                </p>
+            </div>
+        }
+
+    </div>
+
+</div>

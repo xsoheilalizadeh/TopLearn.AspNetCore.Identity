@@ -1,0 +1,41 @@
+﻿@model App.DTOs.Manager.User.AddUserClaim
+<br />
+
+<div class="container">
+
+    <div class="col-md-6">
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <form asp-route="PostAddUserClaim">
+            
+            <input asp-for="UserName" type="hidden"/>
+
+            <div class="form-group">
+                <input asp-for="ClaimValue" placeholder="ClaimValue" class="form-control" />
+            </div>
+
+            <span asp-validation-for="ClaimValue" class="text-danger"></span>
+
+
+            <div class="form-group">
+                <input asp-for="ClaimType" placeholder="ClaimType" class="form-control" />
+            </div>
+
+            <span asp-validation-for="ClaimType" class="text-danger"></span>
+
+            <hr />
+
+            <button type="submit" class="btn btn-success">Add Claim</button>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts
+{
+
+    <script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="//ajax.aspnetcdn.com/ajax/mvc/5.2.3/jquery.validate.unobtrusive.min.js"></script>
+}

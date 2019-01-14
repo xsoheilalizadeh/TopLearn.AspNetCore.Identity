@@ -1,0 +1,38 @@
+﻿@model IList<System.Security.Claims.Claim>
+
+<br />
+<div class="container">
+    <div class="col-lg-6">
+        <h2>Role Claim List</h2>
+        @if (Model.Any())
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var claim in Model)
+                    {
+                        <tr>
+                            <td>@claim.Type</td>
+                            <td>@claim.Value</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <p>
+                    There is not any role claim.
+                </p>
+            </div>
+        }
+
+    </div>
+
+</div>

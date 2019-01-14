@@ -1,0 +1,57 @@
+﻿@model List<App.Domain.Identity.Role>
+
+<br />
+
+<div class="container">
+    <div class="col-lg-6">
+        <h2>Role List</h2>
+        
+        <a asp-route="GetCreateRole" class="btn btn-success">AddRole</a>
+        <hr/>
+        @if (Model.Any())
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>DisplayName</th>
+                        <th>Name</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var role in Model)
+                    {
+                        <tr>
+                            <td>@role.DisplayName</td>
+                            <td>@role.Name</td>
+                            <td style="display: flex;">
+                                <a class="btn btn-info" href="@Url.RouteUrl("GetRoleUsers", new {roleName = role.Name})">
+                                    Users
+                                </a>
+                                <a class="btn btn-success" href="@Url.RouteUrl("GetRoleClaims", new {roleName = role.Name})">
+                                    Claims
+                                </a>
+
+                                <form asp-route="PostRemoveRole">
+                                    <input name="roleId" value="@role.Id" type="hidden" />
+                                    <button class="btn btn-danger"> Remove </button>
+                                </form>
+
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <p>
+                    There is not any role.
+                </p>
+            </div>
+        }
+
+    </div>
+
+</div>
