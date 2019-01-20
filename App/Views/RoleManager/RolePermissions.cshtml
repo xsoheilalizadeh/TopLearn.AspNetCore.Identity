@@ -1,6 +1,6 @@
 ﻿@using App.Services
 @model App.DTOs.Manager.RolePermission
-<br />
+<br/>
 
 <div class="container">
 
@@ -10,26 +10,36 @@
 
         <form asp-route="PostRolePermissions">
 
-            <input asp-for="RoleId" type="hidden" value="@Model.Role.Id" />
+            <input asp-for="RoleId" type="hidden" value="@Model.Role.Id"/>
 
             <ul class="list-group">
-                
+
                 @foreach (var action in Model.Actions)
                 {
                     var displayName = string.IsNullOrEmpty(action.ActionDisplayName) ? $"{action.ControllerName}:{action.ActionName}" : action.ActionDisplayName;
 
                     var isChecked = Model.Role.Claims.Any(x => x.ClaimType == ConstantPolicies.DynamicPermission && x.ClaimValue == action.Key);
 
+                    var givenOnClaim = Model.Role
+                        .Claims.SingleOrDefault(x => x.ClaimType == ConstantPolicies.DynamicPermission && x.ClaimValue == action.Key);
+
                     <li class="list-group-item">
-                        <input name="Keys" value="@action.Key" @(isChecked ? "checked") />
-                        @displayName
+                        <input type="checkbox" name="Keys" value="@action.Key" @(isChecked ? "checked" : "")/>
+                        @displayName 
+                        /
+                        @if (givenOnClaim != null)
+                        {
+                            <b>
+                               given on: @givenOnClaim.GivenOn
+                            </b>
+                        }
                     </li>
                 }
 
             </ul>
-           
 
-            <hr />
+
+            <hr/>
 
             <button type="submit" class="btn btn-success">Update</button>
 
@@ -44,5 +54,3 @@
     <script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
     <script src="//ajax.aspnetcdn.com/ajax/mvc/5.2.3/jquery.validate.unobtrusive.min.js"></script>
 }
-
-

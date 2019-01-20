@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using App.Data;
@@ -25,6 +26,7 @@ namespace App.Controllers
 
         private readonly AppRoleManager _roleManager;
         private readonly AppUserManager _userManager;
+        private readonly AppSignInManager _signInManager;
 
         private readonly ApplicationDbContext _dbContext;
 
@@ -32,12 +34,14 @@ namespace App.Controllers
             AppRoleManager roleManager,
             AppUserManager userManager,
             ApplicationDbContext dbContext,
-            IActionDescriptorCollectionProvider actionDescriptor)
+            IActionDescriptorCollectionProvider actionDescriptor,
+            AppSignInManager signInManager)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             _dbContext = dbContext;
             _actionDescriptor = actionDescriptor;
+            _signInManager = signInManager;
         }
 
         [HttpGet("", Name = "GetRoles")]
@@ -85,8 +89,7 @@ namespace App.Controllers
             });
         }
 
-
-        [HttpPost("permissions",Name = "PostRolePermissions")]
+        [HttpPost("permissions", Name = "PostRolePermissions")]
         public async Task<IActionResult> RolePermissions(RolePermission model)
         {
             if (!ModelState.IsValid)
@@ -103,9 +106,61 @@ namespace App.Controllers
                 return NotFound();
             }
 
+            var selectedPermissions = model.Keys.ToList();
+
+            var roleClaims = role.Claims
+                .Where(x => x.ClaimType == ConstantPolicies.DynamicPermission)
+                .Select(x => x.ClaimValue)
+                .ToList();
 
 
-        }   
+            // add new permissions 
+            var newPermissions = selectedPermissions.Except(roleClaims).ToList();
+            foreach (var permission in newPermissions)
+            {
+                role.Claims.Add(new RoleClaim
+                {
+                    ClaimType = ConstantPolicies.DynamicPermission,
+                    ClaimValue = permission,
+                    GivenOn = DateTime.Now
+                });
+            }
+
+            // remove deleted permissions
+            var removedPermissions = roleClaims.Except(selectedPermissions).ToList();
+            foreach (var permission in removedPermissions)
+            {
+                var roleClaim = role.Claims
+                    .SingleOrDefault(x =>
+                        x.ClaimType == ConstantPolicies.DynamicPermission &&
+                        x.ClaimValue == permission);
+
+                if (roleClaim != null)
+                {
+                    role.Claims.Remove(roleClaim);
+                }
+            }
+
+           var result =  await _roleManager.UpdateAsync(role);
+
+           if (result.Succeeded)
+           {
+               var users = await _userManager.GetUsersInRoleAsync(role.Name);
+
+               foreach (var user in users)
+               {
+                   await _userManager.UpdateSecurityStampAsync(user);
+                   await _signInManager.RefreshSignInAsync(user);
+               }
+
+
+               return RedirectToRoute("GetRolePermissions", new {roleName = role.Name});
+           }
+
+           AddErrors(result);
+
+           return View(model);
+        }
 
 
         [HttpGet("{roleName}/claims", Name = "GetRoleClaims")]

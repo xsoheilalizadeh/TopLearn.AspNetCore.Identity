@@ -125,6 +125,8 @@ namespace App
 
             services.AddScoped<IAuthorizationHandler, DynamicPermissionHandler>();
 
+            services.AddScoped<IDynamicPermissionService, DynamicPermissionService>();
+
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.Name = "App.Cookie";

@@ -31,6 +31,9 @@
                                 <a class="btn btn-success" href="@Url.RouteUrl("GetRoleClaims", new {roleName = role.Name})">
                                     Claims
                                 </a>
+                                <a class="btn btn-warning" href="@Url.RouteUrl("GetRolePermissions", new {roleName = role.Name})">
+                                    Permissions
+                                </a>
 
                                 <form asp-route="PostRemoveRole">
                                     <input name="roleId" value="@role.Id" type="hidden" />
