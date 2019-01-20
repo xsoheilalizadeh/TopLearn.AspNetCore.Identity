@@ -2,6 +2,7 @@
 using App.DataProtection;
 using App.Domain;
 using App.Domain.Identity;
+using App.Services;
 using App.Services.Identity;
 using App.Services.Identity.Managers;
 using App.Services.Identity.Stores;
@@ -112,9 +113,17 @@ namespace App
                 {
                     policy.Requirements.Add(new Plan18Requirement("Saeed"));
                 });
+
+                options.AddPolicy(ConstantPolicies.DynamicPermission, policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.Requirements.Add(new DynamicPermissionRequirement());
+                });
             });
 
             services.AddScoped<IAuthorizationHandler, Plan18AuthorizationHandler>();
+
+            services.AddScoped<IAuthorizationHandler, DynamicPermissionHandler>();
 
             services.ConfigureApplicationCookie(options =>
             {

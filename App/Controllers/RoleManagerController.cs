@@ -1,9 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using App.Data;
 using App.Domain.Identity;
+using App.DTOs;
 using App.Services.Identity.Managers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace App.Controllers
@@ -11,16 +14,23 @@ namespace App.Controllers
     [Route("role-manager")]
     public class RoleManagerController : Controller
     {
+        private readonly IActionDescriptorCollectionProvider _actionDescriptor;
+
         private readonly AppRoleManager _roleManager;
         private readonly AppUserManager _userManager;
 
         private readonly ApplicationDbContext _dbContext;
 
-        public RoleManagerController(AppRoleManager roleManager, AppUserManager userManager, ApplicationDbContext dbContext)
+        public RoleManagerController(
+            AppRoleManager roleManager, 
+            AppUserManager userManager, 
+            ApplicationDbContext dbContext, 
+            IActionDescriptorCollectionProvider actionDescriptor)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             _dbContext = dbContext;
+            _actionDescriptor = actionDescriptor;
         }
 
         [HttpGet("", Name = "GetRoles")]
@@ -45,6 +55,25 @@ namespace App.Controllers
 
             return View(users);
         }
+
+
+        [HttpGet("{roleName}/permissions",Name = "GetRolePermissions")]
+        public async Task<IActionResult> RolePermissions(string roleName)
+        {
+            var role = await _roleManager.Roles
+                .Include(x => x.Claims)
+                .SingleOrDefaultAsync(x => x.Name == roleName);
+
+            if (role == null)
+            {
+                return NotFound();
+            }
+
+
+
+
+        }
+
 
         [HttpGet("{roleName}/claims", Name = "GetRoleClaims")]
         public async Task<IActionResult> RoleClaims(string roleName)
@@ -143,5 +172,16 @@ namespace App.Controllers
                 ModelState.AddModelError(string.Empty, error.Description);
             }
         }
+
+
+        private List<ActionDto> GetDynamicPermissionActions()
+        {
+           var actionDescriptors = _actionDescriptor.ActionDescriptors.Items;
+
+           foreach (var actionDescriptor in actionDescriptors)
+           {
+                
+           }
+        }
     }
-}
+}   
