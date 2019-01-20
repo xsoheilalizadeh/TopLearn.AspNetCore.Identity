@@ -1,0 +1,41 @@
+﻿@model App.DTOs.Account.RolePermission
+
+<br />
+
+<div class="container">
+
+    <div class="col-md-6">
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <form asp-route="UpdatePermissions">
+
+            <input asp-for="RoleId" value="@Model.Role.Id" type="hidden" />
+
+            <ul class="list-group">
+                @foreach (var action in Model.Actions)
+                {
+                    var isSelected = Model.Role.Claims.Any(x => x.ClaimType == "DynamicPermission" && x.ClaimValue == action.Key);
+
+                    <li class="list-group-item">
+                        <input name="keys" type="checkbox" value="@action.Key" @(isSelected ? "checked" : "")/>
+                        @(string.IsNullOrEmpty(action.ActionDisplayName) ? $"{action.ControllerName}.{action.ActionName}" : action.ActionDisplayName)
+                    </li>
+                }
+
+            </ul>
+            <hr />
+
+            <button type="submit" class="btn btn-success">Update</button>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts
+    {
+
+    <script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="//ajax.aspnetcdn.com/ajax/mvc/5.2.3/jquery.validate.unobtrusive.min.js"></script>
+}

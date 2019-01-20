@@ -20,6 +20,7 @@ namespace App.Controllers
             return View();
         }
 
+        [Authorize("DynamicPermission")]
         public IActionResult Contact()
         {
             ViewData["Message"] = "Your contact page.";
