@@ -1,11 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using System.Threading.Tasks;
 using App.Data;
 using App.Domain.Identity;
 using App.DTOs;
+using App.DTOs.Manager;
+using App.Services;
 using App.Services.Identity.Managers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,9 +29,9 @@ namespace App.Controllers
         private readonly ApplicationDbContext _dbContext;
 
         public RoleManagerController(
-            AppRoleManager roleManager, 
-            AppUserManager userManager, 
-            ApplicationDbContext dbContext, 
+            AppRoleManager roleManager,
+            AppUserManager userManager,
+            ApplicationDbContext dbContext,
             IActionDescriptorCollectionProvider actionDescriptor)
         {
             _roleManager = roleManager;
@@ -57,7 +64,7 @@ namespace App.Controllers
         }
 
 
-        [HttpGet("{roleName}/permissions",Name = "GetRolePermissions")]
+        [HttpGet("{roleName}/permissions", Name = "GetRolePermissions")]
         public async Task<IActionResult> RolePermissions(string roleName)
         {
             var role = await _roleManager.Roles
@@ -69,10 +76,36 @@ namespace App.Controllers
                 return NotFound();
             }
 
+            var dynamicActions = this.GetDynamicPermissionActions();
 
-
-
+            return View(new RolePermission
+            {
+                Actions = dynamicActions,
+                Role = role
+            });
         }
+
+
+        [HttpPost("permissions",Name = "PostRolePermissions")]
+        public async Task<IActionResult> RolePermissions(RolePermission model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var role = await _roleManager.Roles
+                .Include(x => x.Claims)
+                .SingleOrDefaultAsync(x => x.Id == model.RoleId);
+
+            if (role == null)
+            {
+                return NotFound();
+            }
+
+
+
+        }   
 
 
         [HttpGet("{roleName}/claims", Name = "GetRoleClaims")]
@@ -147,7 +180,6 @@ namespace App.Controllers
         }
 
 
-
         [HttpPost("remove", Name = "PostRemoveRole")]
         public async Task<IActionResult> Remove(string roleId)
         {
@@ -165,6 +197,7 @@ namespace App.Controllers
             return RedirectToRoute("GetRoles");
         }
 
+
         private void AddErrors(IdentityResult result)
         {
             foreach (var error in result.Errors)
@@ -173,15 +206,34 @@ namespace App.Controllers
             }
         }
 
-
         private List<ActionDto> GetDynamicPermissionActions()
         {
-           var actionDescriptors = _actionDescriptor.ActionDescriptors.Items;
+            var actions = new List<ActionDto>();
 
-           foreach (var actionDescriptor in actionDescriptors)
-           {
-                
-           }
+            var actionDescriptors = _actionDescriptor.ActionDescriptors.Items;
+
+            foreach (var actionDescriptor in actionDescriptors)
+            {
+                var descriptor = (ControllerActionDescriptor) actionDescriptor;
+
+                var hasPermission = descriptor.ControllerTypeInfo.GetCustomAttribute<AuthorizeAttribute>()?
+                                        .Policy == ConstantPolicies.DynamicPermission ||
+                                    descriptor.MethodInfo.GetCustomAttribute<AuthorizeAttribute>()?
+                                        .Policy == ConstantPolicies.DynamicPermission;
+
+                if (hasPermission)
+                {
+                    actions.Add(new ActionDto
+                    {
+                        ActionName = descriptor.ActionName,
+                        ControllerName = descriptor.ControllerName,
+                        ActionDisplayName = descriptor.MethodInfo.GetCustomAttribute<DisplayAttribute>()?.Name,
+                        AreaName = descriptor.MethodInfo.GetCustomAttribute<AreaAttribute>()?.RouteValue
+                    });
+                }
+            }
+
+            return actions;
         }
     }
-}   
+}
