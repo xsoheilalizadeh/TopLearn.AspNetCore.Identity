@@ -1,4 +1,5 @@
-﻿using App.Data;
+﻿using System;
+using App.Data;
 using App.DataProtection;
 using App.Domain;
 using App.Domain.Identity;
@@ -134,6 +135,7 @@ namespace App
                 options.AccessDeniedPath = "/account/access-denied";
                 options.LogoutPath = "/account/sign-out";
                 options.ReturnUrlParameter = "returnTo";
+                options.ExpireTimeSpan = TimeSpan.FromDays(8);
             });
         }
 
