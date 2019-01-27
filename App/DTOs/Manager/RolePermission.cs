@@ -5,7 +5,7 @@ namespace App.DTOs.Manager
 {
     public class RolePermission
     {
-        public string[] Keys { get; set; }
+        public List<string> Keys { get; set; } = new List<string>();
 
         public Role Role { get; set; }
 
