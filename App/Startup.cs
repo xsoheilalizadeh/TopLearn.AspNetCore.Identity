@@ -135,7 +135,8 @@ namespace App
                 options.AccessDeniedPath = "/account/access-denied";
                 options.LogoutPath = "/account/sign-out";
                 options.ReturnUrlParameter = "returnTo";
-                options.ExpireTimeSpan = TimeSpan.FromDays(8);
+
+                options.ExpireTimeSpan = TimeSpan.FromDays(7);
             });
         }
 

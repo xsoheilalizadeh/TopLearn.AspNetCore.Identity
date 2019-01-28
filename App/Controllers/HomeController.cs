@@ -7,9 +7,15 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace App.Controllers
 {
-    [Authorize(nameof(ConstantPolicies.DynamicPermission))]
     public class HomeController : Controller
     {
+
+        [Authorize(nameof(ConstantPolicies.DynamicPermission))]
+        public IActionResult Secure()
+        {
+            return Content("Haha! :)");
+        }
+
         public IActionResult Index()
         {
             return View();
