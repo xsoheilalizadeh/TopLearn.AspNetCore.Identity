@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore;
 namespace App.Controllers
 {
     [Route("role-manager")]
+    [Authorize]
     public class RoleManagerController : Controller
     {
         private readonly IActionDescriptorCollectionProvider _actionDescriptor;

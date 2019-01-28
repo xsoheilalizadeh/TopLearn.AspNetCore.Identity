@@ -3,7 +3,9 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using App.Models;
 using App.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace App.Controllers
 {

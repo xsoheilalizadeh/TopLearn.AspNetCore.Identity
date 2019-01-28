@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using App.Data;
 using App.DataProtection;
 using App.Domain;
@@ -8,6 +10,7 @@ using App.Services.Identity;
 using App.Services.Identity.Managers;
 using App.Services.Identity.Stores;
 using App.Services.Identity.Validators;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -18,6 +21,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 
 namespace App
 {
@@ -56,6 +60,29 @@ namespace App
             services.AddScoped<IRoleValidator<Role>, AppRoleValidator>();
             services.AddScoped<RoleValidator<Role>, AppRoleValidator>();
 
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                var key = Configuration["JwtConfig:Key"];
+                var issuer = Configuration["JwtConfig:Issuer"];
+                var audience = Configuration["JwtConfig:Audience"];
+
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = issuer,
+                    ValidAudience = audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+                };
+            });
 
             services.AddIdentity<User, Role>(option =>
                 {
@@ -73,8 +100,8 @@ namespace App
                 })
                 .AddUserStore<AppUserStore>()
                 .AddRoleStore<AppRoleStore>()
-//                .AddUserValidator<AppUserValidator>()
-//                .AddRoleValidator<AppRoleValidator>()
+                //                .AddUserValidator<AppUserValidator>()
+                //                .AddRoleValidator<AppRoleValidator>()
                 .AddUserManager<AppUserManager>()
                 .AddRoleManager<AppRoleManager>()
                 .AddSignInManager<AppSignInManager>()
@@ -98,16 +125,20 @@ namespace App
                     options.ClientSecret = Configuration["GoogleAuth:ClientSecret"];
                 });
 
+
+
+
+
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("RequiredAdminRoleAndManager", policy =>
                 {
-                    policy.RequireRole("Admin","Manager");
+                    policy.RequireRole("Admin", "Manager");
                 });
 
                 options.AddPolicy("Plan1", policy =>
                 {
-                    policy.RequireClaim("UserPlan","1");
+                    policy.RequireClaim("UserPlan", "1");
                 });
 
                 options.AddPolicy("Plan18", policy =>
