@@ -2,6 +2,6 @@
 {
     public static class ConstantPolicies
     {
-        public static string DynamicPermission = nameof(DynamicPermission);
+        public const string DynamicPermission = nameof(DynamicPermission);
     }
 }   
