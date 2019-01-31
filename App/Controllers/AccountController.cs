@@ -152,6 +152,9 @@ namespace App.Controllers
                 }
             }
 
+
+            ModelState.AddModelError(string.Empty,"Invalid username or password");
+
             return View(account);
         }
 
